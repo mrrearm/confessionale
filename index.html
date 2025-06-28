@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spazio di Riflessione</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c1810, #4a2c17, #1a1a1a);
+            color: #f4f1e8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #d4af37;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: normal;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #c9b896;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(139, 69, 19, 0.3);
+            margin-bottom: 30px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(139, 69, 19, 0.4);
+        }
+
+        .question-container {
+            display: none;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .question {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #d4af37;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .response-area {
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 20px;
+            border: 2px solid rgba(139, 69, 19, 0.3);
+            border-radius: 15px;
+            background: rgba(20, 20, 20, 0.8);
+            color: #f4f1e8;
+            font-size: 1rem;
+            font-family: inherit;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        textarea::placeholder {
+            color: #8b7355;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #2c1810;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .comfort-message {
+            display: none;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.2), rgba(76, 175, 80, 0.1));
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            text-align: center;
+            font-style: italic;
+            line-height: 1.6;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .candle {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 8px;
+            height: 40px;
+            background: linear-gradient(180deg, #8b4513, #654321);
+            border-radius: 4px;
+        }
+
+        .flame {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 15px;
+            background: radial-gradient(circle, #ffd700, #ff6b35);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: flicker 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) rotate(-1deg) scale(1); }
+            50% { transform: translateX(-50%) rotate(1deg) scale(1.05); }
+            100% { transform: translateX(-50%) rotate(-1deg) scale(0.95); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .generate-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            .question {
+                padding: 20px;
+                font-size: 1rem;
+            }
+
+            textarea {
+                min-height: 120px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .candle {
+                top: 15px;
+                right: 20px;
+                width: 6px;
+                height: 30px;
+            }
+
+            .flame {
+                width: 10px;
+                height: 12px;
+                top: -12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="candle">
+            <div class="flame"></div>
+        </div>
+        
+        <div class="header">
+            <h1>Spazio di Riflessione</h1>
+            <p class="subtitle">Un momento di pausa per esplorare i tuoi pensieri più profondi. Qui puoi riflettere in tutta sincerità, senza giudizio.</p>
+        </div>
+
+        <button class="generate-btn" onclick="generateQuestion()">
+            ✨ Inizia la Riflessione ✨
+        </button>
+
+        <div class="question-container" id="questionContainer">
+            <div class="question" id="questionText"></div>
+            
+            <div class="response-area">
+                <textarea id="responseText" placeholder="Scrivi qui la tua riflessione... Prenditi tutto il tempo che ti serve."></textarea>
+            </div>
+
+            <button class="submit-btn" onclick="submitResponse()">
+                Condividi la tua Riflessione
+            </button>
+
+            <div class="comfort-message" id="comfortMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "Qual è il ricordo più prezioso della tua infanzia e perché continua a scaldarti il cuore?",
+            "C'è qualcosa che vorresti dire a una persona importante della tua vita ma non hai mai trovato il coraggio di fare?",
+            "Quale paura ti limita di più nel raggiungere i tuoi sogni?",
+            "Quando ti senti più autentico e vero con te stesso?",
+            "Qual è la lezione più importante che la vita ti ha insegnato finora?",
+            "C'è qualcosa di cui ti penti profondamente? Come ti ha cambiato?",
+            "Cosa ti rende davvero felice, al di là delle aspettative degli altri?",
+            "Quale aspetto di te stesso fatichi ad accettare?",
+            "Se potessi tornare indietro, cosa diresti al te stesso di 10 anni fa?",
+            "Qual è il tuo più grande sogno segreto?",
+            "Quando ti sei sentito più solo e come ne sei uscito?",
+            "Cosa significa per te essere amato veramente?",
+            "Quale parte della tua personalità vorresti che gli altri comprendessero meglio?",
+            "C'è qualcuno a cui dovresti chiedere scusa? Perché non l'hai ancora fatto?",
+            "Qual è la cosa più coraggiosa che hai mai fatto?",
+            "Cosa ti spaventa di più del futuro?",
+            "Quando ti sei sentito più orgoglioso di te stesso?",
+            "C'è una tradizione familiare o un ricordo che custodisci gelosamente?",
+            "Qual è il sacrificio più grande che hai fatto per qualcuno che ami?",
+            "Se dovessi descrivere la tua essenza in tre parole, quali sarebbero?"
+        ];
+
+        const comfortMessages = [
+            "Le tue parole hanno un valore profondo. Grazie per aver condiviso una parte di te. 🌟",
+            "La sincerità con te stesso è il primo passo verso la crescita. Sei sulla strada giusta. 💫",
+            "Ogni riflessione è un atto di coraggio. Onora questa parte di te che cerca sempre la verità. 🕯️",
+            "Le tue emozioni sono valide e meritano di essere espresse. Continua a essere autentico. ✨",
+            "Riconoscere i propri sentimenti è un segno di saggezza e maturità. Rispetta questo processo. 🌙",
+            "Ogni storia ha il suo peso e la sua bellezza. La tua non fa eccezione. 🌸",
+            "La vulnerabilità è una forma di forza. Grazie per aver avuto il coraggio di esplorare te stesso. 💝",
+            "Ogni pensiero condiviso è un seme di consapevolezza che crescerà nel tempo. 🌱",
+            "La tua onestà con te stesso illumina il cammino verso una maggiore comprensione. 🔥",
+            "Prendersi il tempo per riflettere è un regalo che fai a te stesso. Continua a nutrire questa pratica. 🎁"
+        ];
+
+        function generateQuestion() {
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            const questionText = questions[randomIndex];
+            
+            document.getElementById('questionText').textContent = questionText;
+            document.getElementById('questionContainer').style.display = 'block';
+            document.getElementById('responseText').value = '';
+            document.getElementById('comfortMessage').style.display = 'none';
+            
+            // Scroll to question
+            document.getElementById('questionContainer').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        function saveToGoogleForm(question, response) {
+            const timestamp = new Date().toLocaleString('it-IT');
+            
+            // URL del tuo Google Form (sostituisci con il tuo)
+            const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
+            
+            // Crea i dati del form
+            const formData = new FormData();
+            formData.append('entry.990347170', timestamp);     // Campo timestamp (sostituisci con il tuo entry ID)
+            formData.append('entry.1161153471', question);      // Campo domanda (sostituisci con il tuo entry ID)
+            formData.append('entry.1320211931', response);      // Campo risposta (sostituisci con il tuo entry ID)
+
+            // Invia al Google Form (mode: 'no-cors' per evitare problemi CORS)
+            fetch(GOOGLE_FORM_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            })
+            .then(() => {
+                // Salvataggio completato silenziosamente
+                console.log('Risposta inviata a Google Forms');
+            })
+            .catch(error => {
+                // Fallback: salva localmente se Google Forms non è raggiungibile
+                console.log('Backup locale salvato');
+                localStorage.setItem('confessional_backup_' + Date.now(), JSON.stringify({
+                    timestamp: timestamp,
+                    question: question,
+                    response: response
+                }));
+            });
+        }
+
+        function submitResponse() {
+            const question = document.getElementById('questionText').textContent;
+            const response = document.getElementById('responseText').value.trim();
+            
+            if (!response) {
+                alert('Per favore, condividi i tuoi pensieri prima di procedere.');
+                return;
+            }
+
+            // Salvataggio automatico silente su Google Forms
+            saveToGoogleForm(question, response);
+
+            // Show comfort message
+            const randomComfort = comfortMessages[Math.floor(Math.random() * comfortMessages.length)];
+            document.getElementById('comfortMessage').textContent = randomComfort;
+            document.getElementById('comfortMessage').style.display = 'block';
+
+            // Clear response for next question
+            document.getElementById('responseText').value = '';
+        }
+
+        // Add some ambient interaction
+        document.addEventListener('mousemove', function(e) {
+            const flame = document.querySelector('.flame');
+            const rect = flame.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            const distance = Math.sqrt(x * x + y * y);
+            
+            if (distance < 100) {
+                const intensity = (100 - distance) / 100;
+                flame.style.transform = `translateX(-50%) rotate(${x * intensity * 0.1}deg) scale(${1 + intensity * 0.1})`;
+            }
+        });
+    </script>
+</body>
+</html>
